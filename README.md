@@ -1,4 +1,4 @@
-# NotesMind
+# Ask-My-Notes (NotesMind)
 
 **A private, local-first RAG chatbot for your notes.**  
 Zero cost · No server · Complete privacy · Fully offline after first load.
@@ -38,8 +38,8 @@ You upload your notes → it generates embeddings locally using Transformers.js 
 
 ```bash
 # Clone or download the project
-git clone <repo-url>
-cd notesmind
+git clone https://github.com/Laukik9765/Ask-My-Notes.git
+cd Ask-My-Notes
 
 # Serve it (any static server works)
 npx serve .
@@ -48,7 +48,8 @@ python -m http.server 8080
 # OR just open index.html in Chrome/Firefox
 ```
 
-> ⚠️ **Important:** The embedding worker requires ES Module support. Open via a local server (not `file://`) for best results, especially for the Web Worker to load Transformers.js.
+> [!IMPORTANT]
+> The embedding worker requires ES Module support. Open via a local server (not `file://`) for best results, especially for the Web Worker to load Transformers.js.
 
 ### Option 2: Deploy to GitHub Pages / Netlify / Vercel
 
@@ -98,6 +99,7 @@ If you don't have a machine capable of running Ollama:
 3. In NotesMind → **Settings → Model Provider → Gemini API**
 4. Paste your key
 
+> [!NOTE]
 > The free tier uses `gemini-1.5-flash` with generous daily quotas.
 
 ---
@@ -126,21 +128,29 @@ If you don't have a machine capable of running Ollama:
 
 ## Architecture
 
-```
-User uploads file
-  → Parse to plain text (pdf.js / DOMParser / FileReader)
-  → Chunk text ~2000 chars, 15% overlap (paragraph-aware)
-  → Embed each chunk (all-MiniLM-L6-v2 via Transformers.js, Web Worker)
-  → Store vectors + text in IndexedDB
+```mermaid
+graph TD
+    %% Ingestion Flow
+    subgraph Ingestion ["Ingestion Pipeline (Offline / Client-Side)"]
+        A[User Uploads File] --> B[Parse to Plain Text<br/>pdf.js / DOMParser / FileReader]
+        B --> C[Chunk Text<br/>~2000 chars, 15% overlap]
+        C --> D[Embed Chunks<br/>all-MiniLM-L6-v2 via Transformers.js]
+        D --> E[(Store Vectors & Text<br/>IndexedDB)]
+    end
 
-User asks question
-  → Embed question (same model, same worker)
-  → Cosine similarity search over stored vectors
-  → Top-k chunks assembled into grounded context
-  → Strict prompt: "answer ONLY from <context>"
-  → Stream response from Ollama / Gemini / Retrieval-only
-  → Render Markdown with citations + confidence badge
+    %% Query Flow
+    subgraph Query ["Query Pipeline (Grounding & Generation)"]
+        F[User Asks Question] --> G[Embed Question<br/>same embedding worker]
+        G --> H[Cosine Similarity Search<br/>in-memory scan over IndexedDB]
+        H --> I[Retrieve Top-k Chunks]
+        I --> J[Assemble Grounded Prompt<br/>Strict prompt constraints]
+        J --> K[LLM Generation<br/>Ollama / Gemini / Retrieval Only]
+        K --> L[Render Response<br/>Markdown + Citations + Confidence Badge]
+    end
+
+    E -.-> H
 ```
+
 
 ### Module Structure
 
@@ -255,5 +265,3 @@ tests/
 ## License
 
 MIT — use, modify, and share freely.
-#   A s k - M y - N o t e s  
- 
