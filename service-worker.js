@@ -4,7 +4,7 @@
  * After first load, the full ingestion/retrieval pipeline works offline.
  */
 
-const CACHE_VERSION = 'notesmind-v1';
+const CACHE_VERSION = 'notesmind-v2';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const CDN_CACHE       = `${CACHE_VERSION}-cdn`;
 
@@ -122,8 +122,13 @@ async function networkFirst(request) {
     }
     return networkResponse;
   } catch {
-    const cached = await caches.match(request) || await caches.match('/index.html');
-    return cached || new Response('Offline', { status: 503 });
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (request.mode === 'navigate') {
+      const fallback = await caches.match('/index.html');
+      if (fallback) return fallback;
+    }
+    return new Response('Offline', { status: 503 });
   }
 }
 
