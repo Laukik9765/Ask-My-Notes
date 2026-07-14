@@ -1,0 +1,118 @@
+/* ==========================================================
+   kb-manager.css — Knowledge Base Manager page styles
+   ========================================================== */
+
+.kb-manager-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.kb-manager-title-area h1 { margin-bottom: 4px; }
+
+/* Upload zone within manager */
+.manager-upload-strip {
+  background: var(--accent-subtle);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  margin-bottom: var(--space-6);
+  transition: all var(--duration-fast) var(--ease-out);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  font-weight: var(--weight-medium);
+}
+
+.manager-upload-strip:hover {
+  background: var(--accent);
+  color: white;
+  border-style: solid;
+}
+
+/* Document table enhancements */
+.doc-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--weight-medium);
+}
+
+.doc-status-badge.ready    { background: var(--success-subtle); color: var(--success); }
+.doc-status-badge.indexing { background: var(--warning-subtle); color: var(--warning); }
+.doc-status-badge.error    { background: var(--danger-subtle);  color: var(--danger); }
+
+/* KB info bar */
+.kb-info-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.kb-info-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kb-info-stat-value {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.kb-info-stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.kb-info-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border-subtle);
+}
+
+/* Progress row in manager */
+.rebuild-progress-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.rebuild-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.rebuild-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-base) var(--ease-out);
+}

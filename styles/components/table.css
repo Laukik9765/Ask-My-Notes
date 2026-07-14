@@ -1,0 +1,122 @@
+/* ==========================================================
+   table.css — Document table styles
+   ========================================================== */
+
+.data-table-wrapper {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: var(--bg-surface);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semi);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+
+.data-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+.data-table .col-actions {
+  width: 100px;
+  text-align: right;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+.data-table tr:hover .table-actions { opacity: 1; }
+
+/* Table search row */
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.table-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  min-width: 220px;
+}
+
+.table-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.table-search input::placeholder { color: var(--text-tertiary); }
+
+/* Empty table state */
+.table-empty {
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* File type badge in table */
+.file-type-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: var(--weight-medium);
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.file-type-badge.pdf  { background: var(--danger-subtle);  color: var(--danger); }
+.file-type-badge.docx { background: var(--info-subtle);    color: var(--info); }
+.file-type-badge.txt  { background: var(--bg-surface-raised); color: var(--text-secondary); }
+.file-type-badge.md   { background: var(--accent-subtle);  color: var(--accent); }
+
+/* Highlight matching text */
+.highlight {
+  background: var(--warning-subtle);
+  color: var(--warning);
+  border-radius: 2px;
+  padding: 0 2px;
+}

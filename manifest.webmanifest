@@ -1,0 +1,37 @@
+{
+  "name": "NotesMind",
+  "short_name": "NotesMind",
+  "description": "Private, local-first RAG chatbot for your notes. Zero cost, zero server.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0D10",
+  "theme_color": "#6366F1",
+  "lang": "en",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%236366F1'/><text x='50%' y='50%' font-size='110' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>N</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%236366F1'/><text x='50%' y='50%' font-size='300' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>N</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["productivity", "education", "utilities"],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "url": "/chat?new=1",
+      "description": "Start a new conversation with your notes"
+    },
+    {
+      "name": "Upload Documents",
+      "url": "/upload",
+      "description": "Add documents to your Knowledge Base"
+    }
+  ]
+}

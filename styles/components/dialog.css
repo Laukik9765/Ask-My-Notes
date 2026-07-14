@@ -1,0 +1,184 @@
+/* ==========================================================
+   dialog.css — Modal dialog and slide-over styles
+   ========================================================== */
+
+/* Native <dialog> styling */
+dialog {
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-raised);
+  color: var(--text-primary);
+  padding: 0;
+  max-width: min(480px, 90vw);
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn var(--duration-fast) var(--ease-spring) both;
+}
+
+dialog::backdrop {
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--duration-base) var(--ease-out) both;
+}
+
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dialog-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semi);
+  color: var(--text-primary);
+}
+
+.dialog-close {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.dialog-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.dialog-body {
+  padding: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Danger dialog */
+.dialog-danger-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--danger-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger);
+  margin-bottom: var(--space-4);
+}
+
+/* Command palette dialog */
+dialog.command-palette {
+  max-width: min(560px, 90vw);
+  top: 15vh;
+  margin: 0 auto;
+  border-radius: var(--radius-xl);
+}
+
+.cmd-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cmd-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.cmd-results {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.cmd-result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-out);
+}
+
+.cmd-result-item:hover,
+.cmd-result-item.focused {
+  background: var(--bg-hover);
+}
+
+.cmd-result-item .result-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.cmd-result-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.cmd-result-sub {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.cmd-empty {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.cmd-kbd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}

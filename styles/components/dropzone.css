@@ -1,0 +1,188 @@
+/* ==========================================================
+   dropzone.css — File upload dropzone styles
+   ========================================================== */
+
+.dropzone-area {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  padding: var(--space-16) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  text-align: center;
+  min-height: 280px;
+  position: relative;
+}
+
+.dropzone-area:hover {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.dropzone-area.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  transform: scale(1.01);
+  box-shadow: 0 0 0 4px var(--accent-subtle), var(--shadow-md);
+}
+
+.dropzone-area.has-files {
+  min-height: auto;
+  padding: var(--space-6);
+  border-style: solid;
+}
+
+.dropzone-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: var(--accent-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.dropzone-area:hover .dropzone-icon,
+.dropzone-area.drag-over .dropzone-icon {
+  transform: scale(1.1) translateY(-4px);
+}
+
+.dropzone-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semi);
+  color: var(--text-primary);
+}
+
+.dropzone-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.format-badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+
+.format-badge {
+  padding: 4px 10px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+/* Hidden file input */
+.dropzone-input { display: none; }
+
+/* File queue list */
+.file-queue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.file-queue-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  animation: slideUp var(--duration-base) var(--ease-out) both;
+}
+
+.file-queue-item.error {
+  border-color: var(--danger);
+  background: var(--danger-subtle);
+}
+
+.file-queue-item.success {
+  border-color: var(--success);
+}
+
+.file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  font-family: monospace;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.file-status {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.file-status.error { color: var(--danger); }
+.file-status.success { color: var(--success); }
+
+/* Progress bar in file item */
+.file-progress {
+  height: 3px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: var(--space-2);
+}
+
+.file-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.file-stage-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+/* Status icon */
+.status-icon { flex-shrink: 0; }
+.status-icon.success { color: var(--success); }
+.status-icon.error { color: var(--danger); }
+.status-icon.pending { color: var(--text-tertiary); }
