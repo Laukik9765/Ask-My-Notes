@@ -4,6 +4,9 @@
  * No DOM references; this layer is UI-agnostic.
  */
 
+const defaultKey = atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c=');
+const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
 const state = {
   knowledgeBases: [],       // [{ id, name, documentCount, createdAt }]
   activeKbId: null,
@@ -15,7 +18,7 @@ const state = {
     provider: 'gemini',      // 'ollama' | 'gemini' | 'retrieval'
     ollamaModel: 'llama3.2:3b',
     ollamaUrl: 'http://localhost:11434',
-    geminiKey: atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c='),
+    geminiKey: isLocal ? defaultKey : '',
     geminiModel: 'gemini-1.5-flash',
     topK: 5,
     threshold: 0.20,

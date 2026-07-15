@@ -4,7 +4,7 @@
  * After first load, the full ingestion/retrieval pipeline works offline.
  */
 
-const CACHE_VERSION = 'notesmind-v6';
+const CACHE_VERSION = 'notesmind-v7';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const CDN_CACHE       = `${CACHE_VERSION}-cdn`;
 

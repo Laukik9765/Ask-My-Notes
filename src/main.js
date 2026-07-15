@@ -34,11 +34,15 @@ async function bootstrap() {
 
   const defaultKey = atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c=');
   
+  // Only prefill the key if running locally for development. On production, keep it empty/hidden.
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const localDefaultKey = isLocal ? defaultKey : '';
+  
   // Verify if the stored key is valid (either starts with standard 'AIzaSy' or our working 'AQ.Ab8RN6Lc6bi')
   const isKeyValid = stored.geminiKey && (stored.geminiKey.startsWith('AIzaSy') || stored.geminiKey.startsWith('AQ.Ab8RN6Lc6bi'));
   
   const finalProvider = (stored.provider === 'ollama' && !isKeyValid) ? 'gemini' : (stored.provider || 'gemini');
-  const finalKey = isKeyValid ? stored.geminiKey : defaultKey;
+  const finalKey = isKeyValid ? stored.geminiKey : localDefaultKey;
   const finalThreshold = (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold;
 
   if (stored.threshold !== finalThreshold) {

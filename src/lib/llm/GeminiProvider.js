@@ -1,7 +1,7 @@
 /**
- * GeminiProvider.js — LLM provider for Google Gemini free tier (Section 6.6.3)
- * Uses the Gemini generateContent REST API with streaming (SSE).
- * Requires a free API key from Google AI Studio (no credit card).
+ * GeminiProvider.js — LLM provider for Google Gemini free tier
+ * Proxies requests through Vercel serverless function to hide API key,
+ * with direct client-side fallback for local development.
  */
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -17,7 +17,7 @@ export class GeminiProvider {
   }
 
   /**
-   * Generate a streamed response via Gemini's SSE endpoint.
+   * Generate a streamed response.
    *
    * @param {object} opts
    * @param {string}   opts.prompt   - The full grounded prompt
@@ -25,6 +25,29 @@ export class GeminiProvider {
    * @returns {Promise<string>}      - Full accumulated response
    */
   async generate({ prompt, onToken }) {
+    // 1. Try Vercel Serverless Function Proxy first (for Vercel hosting, hides API Key)
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (res.ok) {
+        return await this._streamResponse(res, onToken);
+      } else if (res.status !== 404) {
+        // If the proxy is active but failed with an error, parse and throw
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || res.statusText);
+      }
+    } catch (err) {
+      // If it's a real serverless error (not a 404), bubble it up
+      if (err.message && !err.message.includes('404')) {
+        throw err;
+      }
+    }
+
+    // 2. Client-side Fallback (for local development via http-server)
     if (!this.apiKey) {
       throw new Error('No Gemini API key set. Please add your key in Settings.');
     }
@@ -59,6 +82,13 @@ export class GeminiProvider {
       );
     }
 
+    return await this._streamResponse(res, onToken);
+  }
+
+  /**
+   * Stream utility
+   */
+  async _streamResponse(res, onToken) {
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();
     let full = '';
