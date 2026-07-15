@@ -4,7 +4,7 @@
  * Requires a free API key from Google AI Studio (no credit card).
  */
 
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1/models';
 
 export class GeminiProvider {
   /**
