@@ -75,3 +75,5 @@ Thumbs.db
 # NotesMind cache / data files (if any local exports are saved in workspace)
 *.json
 !manifest.webmanifest
+
+.vercel
