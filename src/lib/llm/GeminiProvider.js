@@ -4,7 +4,7 @@
  * Requires a free API key from Google AI Studio (no credit card).
  */
 
-const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1/models';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 export class GeminiProvider {
   /**
@@ -29,11 +29,14 @@ export class GeminiProvider {
       throw new Error('No Gemini API key set. Please add your key in Settings.');
     }
 
-    const url = `${GEMINI_BASE}/${this.model}:streamGenerateContent?alt=sse&key=${this.apiKey}`;
+    const url = `${GEMINI_BASE}/${this.model}:streamGenerateContent?alt=sse`;
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': this.apiKey
+      },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
