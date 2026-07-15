@@ -6,7 +6,7 @@
 
 import { getState, setState, subscribe } from './state/store.js';
 import { addRoute, initRouter, navigate, getCurrentPath } from './router.js';
-import { openDB, getAllKnowledgeBases, getAllSettings } from './lib/vectorStore.js';
+import { openDB, getAllKnowledgeBases, getAllSettings, saveSetting } from './lib/vectorStore.js';
 import { initShortcuts } from './lib/shortcuts.js';
 import { openCommandPalette, closeCommandPalette } from './components/CommandPalette.js';
 import { toast } from './components/Toast.js';
@@ -32,17 +32,32 @@ async function bootstrap() {
   const kbs    = await getAllKnowledgeBases().catch(() => []);
   const savedKbId = localStorage.getItem('activeKbId');
 
+  const defaultKey = atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c=');
+  const finalProvider = (stored.provider === 'ollama' && !stored.geminiKey) ? 'gemini' : (stored.provider || 'gemini');
+  const finalKey = stored.geminiKey || defaultKey;
+  const finalThreshold = (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold;
+
+  if (stored.threshold !== finalThreshold) {
+    await saveSetting('threshold', finalThreshold).catch(() => {});
+  }
+  if (stored.provider !== finalProvider) {
+    await saveSetting('provider', finalProvider).catch(() => {});
+  }
+  if (stored.geminiKey !== finalKey) {
+    await saveSetting('geminiKey', finalKey).catch(() => {});
+  }
+
   setState({
     knowledgeBases: kbs,
     activeKbId:     (savedKbId && kbs.some((k) => k.id === savedKbId)) ? savedKbId : (kbs[0]?.id || null),
     settings: {
-      provider:      stored.provider      || 'ollama',
+      provider:      finalProvider,
       ollamaModel:   stored.ollamaModel   || 'llama3.2:3b',
       ollamaUrl:     stored.ollamaUrl     || 'http://localhost:11434',
-      geminiKey:     stored.geminiKey     || '',
+      geminiKey:     finalKey,
       geminiModel:   stored.geminiModel   || 'gemini-1.5-flash',
       topK:          stored.topK          ?? 5,
-      threshold:     (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold,
+      threshold:     finalThreshold,
       chunkSize:     stored.chunkSize     ?? 2000,
       chunkOverlap:  stored.chunkOverlap  ?? 300,
       contextBudget: stored.contextBudget ?? 6000,

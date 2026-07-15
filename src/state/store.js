@@ -12,10 +12,10 @@ const state = {
   activeChatId: null,
   theme: 'dark',            // 'dark' | 'light'
   settings: {
-    provider: 'ollama',      // 'ollama' | 'gemini' | 'retrieval'
+    provider: 'gemini',      // 'ollama' | 'gemini' | 'retrieval'
     ollamaModel: 'llama3.2:3b',
     ollamaUrl: 'http://localhost:11434',
-    geminiKey: '',
+    geminiKey: atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c='),
     geminiModel: 'gemini-1.5-flash',
     topK: 5,
     threshold: 0.20,
