@@ -12,7 +12,7 @@ import {
   saveDocument, getDocument, deleteDocument,
   saveChunks, getChunksByKb, getChunksByDocument,
   deleteChunksByDocument, deleteChunksByKb, getDocumentsByKb,
-  saveKnowledgeBase, getAllKnowledgeBases, countChunksByKb, openDB,
+  saveKnowledgeBase, getAllKnowledgeBases, countChunksByKb, openDB, generateUUID,
 } from '../lib/vectorStore.js';
 import { getParser } from '../lib/uploadQueue.js';
 import { getState } from '../state/store.js';
@@ -24,7 +24,7 @@ let workerBusy = false;
 
 function getWorker() {
   if (!worker) {
-    worker = new Worker('./src/workers/embedding.worker.js', { type: 'module' });
+    worker = new Worker('/src/workers/embedding.worker.js', { type: 'module' });
   }
   return worker;
 }
@@ -118,7 +118,7 @@ export async function ingestDocument(file, kbId, onProgress) {
   }
 
   // 2. Save document record (raw text retained for rebuilding)
-  const docId = crypto.randomUUID();
+  const docId = generateUUID();
   const doc = {
     id:           docId,
     kbId,
@@ -155,7 +155,7 @@ export async function ingestDocument(file, kbId, onProgress) {
   // 5. Store chunks
   onProgress?.('Saving', 95);
   const chunks = chunkTexts.map((text, i) => ({
-    id:             crypto.randomUUID(),
+    id:             generateUUID(),
     kbId,
     documentId:     docId,
     chunkIndex:     i,
@@ -259,7 +259,7 @@ export async function rebuildDocumentEmbeddings(docId, onProgress) {
 
   // Save new chunks
   const chunks = chunkTexts.map((text, i) => ({
-    id:             crypto.randomUUID(),
+    id:             generateUUID(),
     kbId:           doc.kbId,
     documentId:     docId,
     chunkIndex:     i,
@@ -293,17 +293,22 @@ export async function query(question, kbId, callbacks = {}) {
   const { settings } = getState();
   const { onToken, onChunks } = callbacks;
 
+  console.log(`[RAG Engine] Querying: "${question}" in KB: "${kbId}"`);
+
   // 1. Embed query
   const queryVec = await embedQuery(question);
 
   // 2. Load chunks (from cache or DB)
   const allChunks = await loadVectorCache(kbId);
+  console.log(`[RAG Engine] Total chunks loaded from database for this KB: ${allChunks.length}`);
 
   if (allChunks.length === 0) {
     const fallback = "No documents found in this Knowledge Base. Please upload some notes first.";
     onToken?.(fallback);
     return { answer: fallback, confidence: { label: 'Low', level: 'low' }, chunks: [] };
   }
+
+  console.log(`[RAG Engine] Matching using settings threshold: ${settings.threshold}, Top-K: ${settings.topK}`);
 
   // 3. Similarity search
   const results = topKChunks(queryVec, allChunks, {
@@ -314,8 +319,18 @@ export async function query(question, kbId, callbacks = {}) {
   const topScore = results.length > 0 ? results[0].score : 0;
   const confidence = scoreToConfidence(topScore);
 
+  console.log(`[RAG Engine] Cosine similarity top score: ${topScore.toFixed(4)}`);
+  if (results.length > 0) {
+    console.log(`[RAG Engine] Top matching chunk details:`, {
+      source: results[0].chunk.sourceFileName,
+      index: results[0].chunk.chunkIndex + 1,
+      text: results[0].chunk.text.slice(0, 100) + "..."
+    });
+  }
+
   // 4. Threshold gate — skip LLM if nothing relevant
   if (results.length === 0 || topScore < settings.threshold) {
+    console.warn(`[RAG Engine] Search score ${topScore.toFixed(4)} below threshold ${settings.threshold}. Bypassing LLM and returning fallback.`);
     onToken?.(FALLBACK_MESSAGE);
     onChunks?.([]);
     return { answer: FALLBACK_MESSAGE, confidence: scoreToConfidence(0), chunks: [] };

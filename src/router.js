@@ -1,6 +1,7 @@
 /**
- * router.js — Minimal History-API client router (~40 lines core)
- * Maps URL paths to page module loaders and handles navigation.
+ * router.js — Hash-based client router
+ * Maps URL hash paths (e.g. #/chat) to page module loaders and handles navigation.
+ * Prevents 404 errors on server refresh.
  */
 
 const routes = {};
@@ -18,29 +19,34 @@ export function addRoute(path, loader) {
 }
 
 /**
- * Navigate to a path using the History API.
+ * Navigate to a path.
  * @param {string} path
- * @param {boolean} [replace=false] - use replaceState instead of pushState
+ * @param {boolean} [replace=false] - use replace instead of push
  */
 export function navigate(path, replace = false) {
-  if (path === currentPath) return;
+  const hashPath = path.startsWith('/') ? '#' + path : path;
   if (replace) {
-    history.replaceState(null, '', path);
+    location.replace(hashPath);
   } else {
-    history.pushState(null, '', path);
+    location.hash = hashPath;
   }
-  renderRoute(path);
 }
 
 /**
  * Resolve the current path and render the matching page.
  */
-async function renderRoute(path) {
-  currentPath = path;
+async function renderRoute(hash) {
+  // Normalize hash path to standard format (e.g., '#/chat?id=123' -> '/chat?id=123')
+  let path = hash;
+  if (path.startsWith('#')) path = path.slice(1);
+  if (!path.startsWith('/')) path = '/' + path;
 
-  // Exact match first, then strip query/hash, then fallback to '/'
-  let loader = routes[path] || routes[path.split('?')[0].split('#')[0]];
+  // Extract base path for matching routes (strip query parameters)
+  const base = path.split('?')[0].split('#')[0];
+  let loader = routes[path] || routes[base];
   if (!loader) loader = routes['/'];
+
+  currentPath = path;
 
   if (!viewContainer) {
     viewContainer = document.getElementById('view-container');
@@ -71,8 +77,10 @@ export function initRouter(opts = {}) {
   viewContainer = document.getElementById('view-container');
   onNavigate = opts.onNavigate || null;
 
-  // Intercept popstate (back/forward)
-  window.addEventListener('popstate', () => renderRoute(location.pathname));
+  // Listen to hashchange events (popstate is not needed for hash routing)
+  window.addEventListener('hashchange', () => {
+    renderRoute(location.hash || '/');
+  });
 
   // Intercept all [data-route] attribute clicks globally
   document.addEventListener('click', (e) => {
@@ -83,8 +91,8 @@ export function initRouter(opts = {}) {
     }
   });
 
-  // Render the initial route
-  renderRoute(location.pathname);
+  // Render the initial route based on the current hash
+  renderRoute(location.hash || '/');
 }
 
 /**

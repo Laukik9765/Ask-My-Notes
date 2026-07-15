@@ -8,7 +8,7 @@ import { getState, setState } from '../state/store.js';
 import { navigate } from '../router.js';
 import {
   saveChat, getChat, getChatsByKb, saveMessage, getMessagesByChat,
-  deleteChat, deleteMessagesByChat, getAllKnowledgeBases,
+  deleteChat, deleteMessagesByChat, getAllKnowledgeBases, generateUUID,
 } from '../lib/vectorStore.js';
 import { query } from '../rag/ragEngine.js';
 import { scoreToConfidence } from '../rag/similarity.js';
@@ -28,13 +28,13 @@ async function getMarked() {
   return window.marked;
 }
 
-let hlLoaded = false;
+let hljsInstance = null;
 async function getHljs() {
-  if (!hlLoaded) {
-    await import('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js');
-    hlLoaded = true;
+  if (!hljsInstance) {
+    const mod = await import('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/+esm');
+    hljsInstance = mod.default;
   }
-  return window.hljs;
+  return hljsInstance;
 }
 
 let currentKbId   = null;
@@ -149,6 +149,7 @@ async function updateKbName(container) {
     return;
   }
   const kbs = await getAllKnowledgeBases();
+  setState({ knowledgeBases: kbs });
   const kb  = kbs.find((k) => k.id === currentKbId);
   if (kb) {
     container.querySelector('#chat-kb-name-text').textContent = kb.name;
@@ -210,7 +211,7 @@ async function loadChatSidebar(container) {
 async function createNewChat(container) {
   if (!currentKbId) return;
   const chat = {
-    id:        crypto.randomUUID(),
+    id:        generateUUID(),
     kbId:      currentKbId,
     title:     'New chat',
     createdAt: Date.now(),
@@ -331,7 +332,7 @@ async function sendMessage(container) {
 
   // User message
   const userMsg = {
-    id:        crypto.randomUUID(),
+    id:        generateUUID(),
     chatId:    currentChatId,
     role:      'user',
     content:   question,
@@ -409,7 +410,7 @@ async function sendMessage(container) {
 
   // Build final assistant message
   const assistantMsg = {
-    id:         crypto.randomUUID(),
+    id:         generateUUID(),
     chatId:     currentChatId,
     role:       'assistant',
     content:    assistantContent,

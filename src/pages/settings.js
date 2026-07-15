@@ -315,7 +315,7 @@ function wireSettings(container) {
 
   // Reset RAG
   container.querySelector('#reset-rag-btn')?.addEventListener('click', async () => {
-    const defaults = { topK: 5, threshold: 0.35, chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
+    const defaults = { topK: 5, threshold: 0.20, chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
     setState({ settings: defaults });
     for (const [k, v] of Object.entries(defaults)) await saveSetting(k, v);
     toast.success('Reset', 'RAG parameters restored to defaults.');

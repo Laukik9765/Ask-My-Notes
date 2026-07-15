@@ -35,7 +35,7 @@ export function cosineSimilarity(a, b) {
  * @returns {Array<{chunk: object, score: number}>}  - Sorted descending by score
  */
 export function topKChunks(queryVector, chunks, opts = {}) {
-  const { topK = 5, threshold = 0.35 } = opts;
+  const { topK = 5, threshold = 0.20 } = opts;
 
   if (!chunks || chunks.length === 0) return [];
 
@@ -60,7 +60,7 @@ export function topKChunks(queryVector, chunks, opts = {}) {
  * @returns {{ label: string, level: 'high'|'medium'|'low' }}
  */
 export function scoreToConfidence(score) {
-  if (score >= 0.65) return { label: 'High',   level: 'high' };
-  if (score >= 0.35) return { label: 'Medium', level: 'medium' };
+  if (score >= 0.50) return { label: 'High',   level: 'high' };
+  if (score >= 0.25) return { label: 'Medium', level: 'medium' };
   return              { label: 'Low',    level: 'low' };
 }

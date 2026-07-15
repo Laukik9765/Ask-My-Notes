@@ -6,7 +6,7 @@
 import { getState, setState } from '../state/store.js';
 import { navigate } from '../router.js';
 import { validateFile, UploadQueue } from '../lib/uploadQueue.js';
-import { getAllKnowledgeBases, saveKnowledgeBase } from '../lib/vectorStore.js';
+import { getAllKnowledgeBases, saveKnowledgeBase, generateUUID } from '../lib/vectorStore.js';
 import { toast } from '../components/Toast.js';
 
 export async function render(container) {
@@ -74,6 +74,7 @@ export async function render(container) {
 
 async function loadKbs(container) {
   const kbs    = await getAllKnowledgeBases();
+  setState({ knowledgeBases: kbs });
   const sel    = container.querySelector('#upload-kb-select');
   const active = getState().activeKbId;
 
@@ -105,7 +106,7 @@ function setupKbSelector(container) {
     const name = nameInp.value.trim();
     if (!name) return;
     const kb = {
-      id:            crypto.randomUUID(),
+      id:            generateUUID(),
       name,
       documentCount: 0,
       createdAt:     Date.now(),

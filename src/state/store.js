@@ -18,7 +18,7 @@ const state = {
     geminiKey: '',
     geminiModel: 'gemini-1.5-flash',
     topK: 5,
-    threshold: 0.35,
+    threshold: 0.20,
     chunkSize: 2000,
     chunkOverlap: 300,
     contextBudget: 6000,

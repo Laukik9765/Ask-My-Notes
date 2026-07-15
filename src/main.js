@@ -4,7 +4,7 @@
  * keyboard shortcuts, service worker, and command palette.
  */
 
-import { getState, setState } from './state/store.js';
+import { getState, setState, subscribe } from './state/store.js';
 import { addRoute, initRouter, navigate, getCurrentPath } from './router.js';
 import { openDB, getAllKnowledgeBases, getAllSettings } from './lib/vectorStore.js';
 import { initShortcuts } from './lib/shortcuts.js';
@@ -42,7 +42,7 @@ async function bootstrap() {
       geminiKey:     stored.geminiKey     || '',
       geminiModel:   stored.geminiModel   || 'gemini-1.5-flash',
       topK:          stored.topK          ?? 5,
-      threshold:     stored.threshold     ?? 0.35,
+      threshold:     (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold,
       chunkSize:     stored.chunkSize     ?? 2000,
       chunkOverlap:  stored.chunkOverlap  ?? 300,
       contextBudget: stored.contextBudget ?? 6000,
@@ -57,6 +57,9 @@ async function bootstrap() {
 
   // 4. Populate nav KB switcher
   populateNavKbSelect();
+  subscribe(() => {
+    populateNavKbSelect();
+  });
 
   // 5. Init router
   initRouter({
@@ -236,6 +239,26 @@ function handleResponsive() {
 /* ─── Service Worker ─────────────────────────────────────── */
 
 function registerServiceWorker() {
+  // Disable Service Worker on localhost/127.0.0.1 for easier local development and update recovery
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    console.log('[SW] Bypassed for local development.');
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const reg of regs) {
+          reg.unregister().then(() => console.log('[SW] Unregistered existing worker.'));
+        }
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        for (const key of keys) {
+          caches.delete(key).then(() => console.log('[Cache] Deleted:', key));
+        }
+      });
+    }
+    return;
+  }
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
       .then((reg) => {

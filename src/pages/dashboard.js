@@ -8,6 +8,7 @@ import { navigate } from '../router.js';
 import {
   getAllKnowledgeBases, saveKnowledgeBase, deleteKnowledgeBase,
   deleteChatsByKb, getDocumentsByKb, countChunksByKb, getChatsByKb,
+  generateUUID,
 } from '../lib/vectorStore.js';
 import { clearKnowledgeBase } from '../rag/ragEngine.js';
 import { confirm } from '../components/ConfirmDialog.js';
@@ -89,10 +90,8 @@ export async function render(container) {
     if (e.key === 'Enter') createKb(container);
   });
 
-  // Subscribe to state updates
-  const unsub = subscribe(() => loadDashboard(container));
   // Cleanup on navigation
-  container._cleanup = unsub;
+  container._cleanup = null;
 }
 
 async function loadDashboard(container) {
@@ -218,7 +217,7 @@ async function createKb(container) {
   if (!name) { input.focus(); return; }
 
   const kb = {
-    id:            crypto.randomUUID(),
+    id:            generateUUID(),
     name,
     documentCount: 0,
     createdAt:     Date.now(),

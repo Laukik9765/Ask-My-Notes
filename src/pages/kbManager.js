@@ -91,6 +91,7 @@ export async function render(container) {
 async function loadKbSelect(container) {
   const sel  = container.querySelector('#kb-manager-select');
   const kbs  = await getAllKnowledgeBases();
+  setState({ knowledgeBases: kbs });
 
   sel.innerHTML = '<option value="">— Select KB —</option>';
   kbs.forEach((kb) => {
