@@ -33,8 +33,12 @@ async function bootstrap() {
   const savedKbId = localStorage.getItem('activeKbId');
 
   const defaultKey = atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c=');
-  const finalProvider = (stored.provider === 'ollama' && !stored.geminiKey) ? 'gemini' : (stored.provider || 'gemini');
-  const finalKey = stored.geminiKey || defaultKey;
+  
+  // Verify if the stored key is valid (either starts with standard 'AIzaSy' or our working 'AQ.Ab8RN6Lc6bi')
+  const isKeyValid = stored.geminiKey && (stored.geminiKey.startsWith('AIzaSy') || stored.geminiKey.startsWith('AQ.Ab8RN6Lc6bi'));
+  
+  const finalProvider = (stored.provider === 'ollama' && !isKeyValid) ? 'gemini' : (stored.provider || 'gemini');
+  const finalKey = isKeyValid ? stored.geminiKey : defaultKey;
   const finalThreshold = (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold;
 
   if (stored.threshold !== finalThreshold) {
