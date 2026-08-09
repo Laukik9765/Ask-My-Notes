@@ -49,7 +49,7 @@ Your goal is to answer the user's question clearly, thoroughly, and accurately u
 INSTRUCTIONS:
 1. Base your response primarily on the knowledge provided in the <context> block.
 2. Synthesize facts across excerpts, explain concepts clearly, and present information in well-formatted Markdown (use bullet points, bold key terms, and code blocks where applicable).
-3. Mention source files using bracketed citations, e.g., [Source: filename.pdf].
+3. Clean Output: Do NOT insert inline bracket tags (such as [Source: filename.pdf, chunk 1]) inside the body of your response text. If needed, you may list the source document names cleanly ONCE at the very bottom of your response.
 4. If the context covers related or partial information, provide a comprehensive answer using the available notes.
 
 <context>

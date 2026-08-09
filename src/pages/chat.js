@@ -389,7 +389,7 @@ async function sendMessage(container) {
         }
         assistantContent += token;
         const bubble = typingGroup.querySelector('#streaming-bubble');
-        if (bubble) bubble.textContent = assistantContent;
+        if (bubble) bubble.textContent = assistantContent.replace(/\[Source:\s*[^\]]+\]/gi, '');
         list.scrollTop = list.scrollHeight;
       },
       onChunks: (chunks) => {
@@ -529,10 +529,11 @@ async function renderMessageBubble(list, msg) {
   list.appendChild(group);
 }
 
-async function renderMarkdown(text) {
+async function renderMarkdown(text = '') {
+  const cleaned = text.replace(/\[Source:\s*[^\]]+\]/gi, '').trim();
   const marked = await getMarked().catch(() => null);
-  if (!marked) return `<p>${escHtml(text)}</p>`;
-  const raw = marked.parse(text);
+  if (!marked) return `<p>${escHtml(cleaned)}</p>`;
+  const raw = marked.parse(cleaned);
   return sanitizeHtml(raw);
 }
 
