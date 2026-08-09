@@ -129,6 +129,46 @@ export async function render(container) {
               <div class="settings-section-desc">Tune chunking and retrieval parameters. Changes take effect on next upload or rebuild.</div>
             </div>
 
+            <div class="settings-field">
+              <div class="settings-field-label">
+                <h4>Search Retrieval Mode</h4>
+                <p>Hybrid combines Vector embeddings (for meaning &amp; intent) and BM25 Keyword match (for exact terms, code symbols, &amp; numbers) using Reciprocal Rank Fusion.</p>
+              </div>
+              <div class="settings-field-control">
+                <select id="search-mode-select" style="padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);background:var(--bg-surface-raised);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
+                  <option value="hybrid"  ${(settings.searchMode || 'hybrid') === 'hybrid'  ? 'selected' : ''}>⚡ Hybrid: Vector + BM25 Keyword (Default)</option>
+                  <option value="vector"  ${settings.searchMode === 'vector'  ? 'selected' : ''}>🧠 Dense Vector Only (Semantic)</option>
+                  <option value="keyword" ${settings.searchMode === 'keyword' ? 'selected' : ''}>🔤 BM25 Keyword Only (Exact Match)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-field">
+              <div class="settings-field-label">
+                <h4>Document-Aware Reranker</h4>
+                <p>Pinpoints the exact target document for multi-document KBs and boosts chunks from the most relevant source file.</p>
+              </div>
+              <div class="settings-field-control">
+                <select id="use-reranker-select" style="padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);background:var(--bg-surface-raised);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
+                  <option value="true"  ${(settings.useReranker !== false) ? 'selected' : ''}>🎯 Enabled: Document Reranking (Default)</option>
+                  <option value="false" ${settings.useReranker === false    ? 'selected' : ''}>🚫 Disabled: Flat Retrieval</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-field">
+              <div class="settings-field-label">
+                <h4>Chunking Strategy</h4>
+                <p>Context-Aware Semantic keeps complete sentences &amp; topic context intact (no random cuts). Fixed Paragraph splits on double newlines.</p>
+              </div>
+              <div class="settings-field-control">
+                <select id="chunking-strategy-select" style="padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);background:var(--bg-surface-raised);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
+                  <option value="semantic"  ${(settings.chunkingStrategy || 'semantic') === 'semantic'  ? 'selected' : ''}>🧠 Context-Aware Semantic (Default)</option>
+                  <option value="paragraph" ${settings.chunkingStrategy === 'paragraph' ? 'selected' : ''}>📄 Fixed Paragraph</option>
+                </select>
+              </div>
+            </div>
+
             ${sliderField('Top-K Results', 'top-k', settings.topK, 1, 20, 1,
               'Number of chunks retrieved per query.')}
             ${sliderField('Similarity Threshold', 'threshold', settings.threshold, 0.1, 0.9, 0.05,
@@ -313,15 +353,45 @@ function wireSettings(container) {
     }, 200));
   });
 
+  // Search mode select
+  container.querySelector('#search-mode-select')?.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    setState({ settings: { searchMode: val } });
+    await saveSetting('searchMode', val);
+    toast.success('Saved', `Search mode set to ${val === 'hybrid' ? 'Hybrid (Vector + BM25 Keyword)' : val === 'vector' ? 'Dense Vector Only' : 'BM25 Keyword Only'}.`);
+  });
+
+  // Document reranker select
+  container.querySelector('#use-reranker-select')?.addEventListener('change', async (e) => {
+    const val = e.target.value === 'true';
+    setState({ settings: { useReranker: val } });
+    await saveSetting('useReranker', val);
+    toast.success('Saved', `Document Reranker ${val ? 'Enabled' : 'Disabled'}.`);
+  });
+
+  // Chunking strategy select
+  container.querySelector('#chunking-strategy-select')?.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    setState({ settings: { chunkingStrategy: val } });
+    await saveSetting('chunkingStrategy', val);
+    toast.success('Saved', `Chunking strategy set to ${val === 'semantic' ? 'Context-Aware Semantic' : 'Fixed Paragraph'}.`);
+  });
+
   // Reset RAG
   container.querySelector('#reset-rag-btn')?.addEventListener('click', async () => {
-    const defaults = { topK: 5, threshold: 0.20, chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
+    const defaults = { topK: 5, threshold: 0.20, searchMode: 'hybrid', useReranker: true, chunkingStrategy: 'semantic', chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
     setState({ settings: defaults });
     for (const [k, v] of Object.entries(defaults)) await saveSetting(k, v);
     toast.success('Reset', 'RAG parameters restored to defaults.');
     // Re-render section
     const sec = container.querySelector('#section-rag');
     if (sec) {
+      const searchSel = container.querySelector('#search-mode-select');
+      if (searchSel) searchSel.value = 'hybrid';
+      const rerankSel = container.querySelector('#use-reranker-select');
+      if (rerankSel) rerankSel.value = 'true';
+      const stratSel = container.querySelector('#chunking-strategy-select');
+      if (stratSel) stratSel.value = 'semantic';
       Object.entries(ragMappings).forEach(([id, { key, parse }]) => {
         const slider = container.querySelector(`#${id}`);
         const valEl  = container.querySelector(`#${id.replace('-slider', '-val')}`);

@@ -22,6 +22,9 @@ const state = {
     geminiModel: 'gemini-1.5-flash',
     topK: 5,
     threshold: 0.20,
+    searchMode: 'hybrid', // 'hybrid' | 'vector' | 'keyword'
+    useReranker: true, // Document-aware reranking
+    chunkingStrategy: 'semantic', // 'semantic' | 'paragraph'
     chunkSize: 2000,
     chunkOverlap: 300,
     contextBudget: 6000,

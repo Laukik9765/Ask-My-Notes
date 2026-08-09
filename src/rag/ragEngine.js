@@ -7,6 +7,7 @@
 
 import { chunkText, estimateTokenCount } from './chunker.js';
 import { topKChunks, scoreToConfidence } from './similarity.js';
+import { rerankChunks } from './reranker.js';
 import { formatContext, buildGroundedPrompt, FALLBACK_MESSAGE } from './promptBuilder.js';
 import {
   saveDocument, getDocument, deleteDocument,
@@ -139,6 +140,7 @@ export async function ingestDocument(file, kbId, onProgress) {
   const chunkTexts = chunkText(parsed.text, {
     chunkSize: settings.chunkSize,
     overlap:   settings.chunkOverlap,
+    strategy:  settings.chunkingStrategy || 'semantic',
   });
 
   if (chunkTexts.length === 0) {
@@ -249,6 +251,7 @@ export async function rebuildDocumentEmbeddings(docId, onProgress) {
   const chunkTexts = chunkText(doc.rawText, {
     chunkSize: settings.chunkSize,
     overlap:   settings.chunkOverlap,
+    strategy:  settings.chunkingStrategy || 'semantic',
   });
 
   // Re-embed
@@ -310,10 +313,19 @@ export async function query(question, kbId, callbacks = {}) {
 
   console.log(`[RAG Engine] Matching using settings threshold: ${settings.threshold}, Top-K: ${settings.topK}`);
 
-  // 3. Similarity search
-  const results = topKChunks(queryVec, allChunks, {
-    topK:      settings.topK,
-    threshold: settings.threshold,
+  // 3. Stage 1 Retrieval (Hybrid Vector + BM25 Keyword)
+  const candidateResults = topKChunks(queryVec, allChunks, {
+    topK:       settings.topK * 3, // Fetch 3x candidates for reranker stage
+    threshold:  settings.threshold * 0.5, // Soft threshold for stage 1
+    searchMode: settings.searchMode || 'hybrid',
+    queryText:  question,
+  });
+
+  // 3b. Stage 2 Document-Aware Reranker
+  const results = rerankChunks(question, queryVec, candidateResults, {
+    topK:        settings.topK,
+    useReranker: settings.useReranker !== false,
+    allKbChunks: allChunks,
   });
 
   const topScore = results.length > 0 ? results[0].score : 0;
