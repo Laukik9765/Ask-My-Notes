@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse';
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse';
 
     const response = await fetch(url, {
       method: 'POST',

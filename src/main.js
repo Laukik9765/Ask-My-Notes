@@ -45,6 +45,8 @@ async function bootstrap() {
   const finalKey = isKeyValid ? stored.geminiKey : localDefaultKey;
   const finalThreshold = (stored.threshold === 0.35 || stored.threshold === 0.25 || stored.threshold === undefined) ? 0.20 : stored.threshold;
 
+  const finalModel = (!stored.geminiModel || stored.geminiModel === 'gemini-1.5-flash') ? 'gemini-2.5-flash' : stored.geminiModel;
+
   if (stored.threshold !== finalThreshold) {
     await saveSetting('threshold', finalThreshold).catch(() => {});
   }
@@ -53,6 +55,9 @@ async function bootstrap() {
   }
   if (stored.geminiKey !== finalKey) {
     await saveSetting('geminiKey', finalKey).catch(() => {});
+  }
+  if (stored.geminiModel !== finalModel) {
+    await saveSetting('geminiModel', finalModel).catch(() => {});
   }
 
   setState({
@@ -63,7 +68,7 @@ async function bootstrap() {
       ollamaModel:   stored.ollamaModel   || 'llama3.2:3b',
       ollamaUrl:     stored.ollamaUrl     || 'http://localhost:11434',
       geminiKey:     finalKey,
-      geminiModel:   stored.geminiModel   || 'gemini-1.5-flash',
+      geminiModel:   finalModel,
       topK:          stored.topK          ?? 5,
       threshold:     finalThreshold,
       chunkSize:     stored.chunkSize     ?? 2000,

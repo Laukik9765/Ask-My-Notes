@@ -19,7 +19,7 @@ const state = {
     ollamaModel: 'llama3.2:3b',
     ollamaUrl: 'http://localhost:11434',
     geminiKey: isLocal ? defaultKey : '',
-    geminiModel: 'gemini-1.5-flash',
+    geminiModel: 'gemini-2.5-flash',
     topK: 5,
     threshold: 0.20,
     searchMode: 'hybrid', // 'hybrid' | 'vector' | 'keyword'

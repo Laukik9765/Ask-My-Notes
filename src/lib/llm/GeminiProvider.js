@@ -9,11 +9,11 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 export class GeminiProvider {
   /**
    * @param {string} apiKey - Free Gemini API key from aistudio.google.com
-   * @param {string} model  - Model name (default 'gemini-1.5-flash')
+   * @param {string} model  - Model name (default 'gemini-2.5-flash')
    */
-  constructor(apiKey, model = 'gemini-1.5-flash') {
+  constructor(apiKey, model = 'gemini-2.5-flash') {
     this.apiKey = apiKey;
-    this.model  = model;
+    this.model  = (!model || model === 'gemini-1.5-flash') ? 'gemini-2.5-flash' : model;
   }
 
   /**
