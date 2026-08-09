@@ -345,9 +345,9 @@ export async function query(question, kbId, callbacks = {}) {
     });
   }
 
-  // 4. Threshold gate — skip LLM if nothing relevant
-  if (results.length === 0 || topScore < settings.threshold) {
-    console.warn(`[RAG Engine] Search score ${topScore.toFixed(4)} below threshold ${settings.threshold}. Bypassing LLM and returning fallback.`);
+  // 4. Safety gate — fallback only if no chunks exist in the Knowledge Base
+  if (results.length === 0) {
+    console.warn(`[RAG Engine] No chunks found in Knowledge Base.`);
     onToken?.(FALLBACK_MESSAGE);
     onChunks?.([]);
     return { answer: FALLBACK_MESSAGE, confidence: scoreToConfidence(0), chunks: [] };

@@ -213,10 +213,19 @@ export function topKChunks(queryVector, chunks, opts = {}) {
     };
   });
 
-  return hybridScored
-    .filter((item) => item.score >= threshold || item.keywordScore > 0.6)
+  let results = hybridScored
+    .filter((item) => item.score >= threshold || item.keywordScore > 0.05 || item.vectorScore > 0.05)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK);
+
+  // Fallback: If strict filtering produced 0 chunks, return the top-K best available chunks in the KB
+  if (results.length === 0 && chunks.length > 0) {
+    results = hybridScored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topK);
+  }
+
+  return results;
 }
 
 /**
@@ -226,7 +235,7 @@ export function topKChunks(queryVector, chunks, opts = {}) {
  * @returns {{ label: string, level: 'high'|'medium'|'low' }}
  */
 export function scoreToConfidence(score) {
-  if (score >= 0.45) return { label: 'High',   level: 'high' };
-  if (score >= 0.22) return { label: 'Medium', level: 'medium' };
+  if (score >= 0.35) return { label: 'High',   level: 'high' };
+  if (score >= 0.15) return { label: 'Medium', level: 'medium' };
   return              { label: 'Low',    level: 'low' };
 }
