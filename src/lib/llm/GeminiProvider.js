@@ -100,23 +100,29 @@ export class GeminiProvider {
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
-      buffer = lines.pop(); // Keep incomplete line in buffer
+      buffer = lines.pop() ?? '';
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') continue;
+        let trimmed = line.trim();
+        if (!trimmed || trimmed === 'data: [DONE]') continue;
+
+        if (trimmed.startsWith('data: ')) {
+          trimmed = trimmed.slice(6).trim();
+        }
+
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
           try {
-            const json  = JSON.parse(data);
-            const parts = json.candidates?.[0]?.content?.parts || [];
+            const parsed = JSON.parse(trimmed);
+            const obj = Array.isArray(parsed) ? parsed[0] : parsed;
+            const parts = obj?.candidates?.[0]?.content?.parts || [];
             for (const part of parts) {
               if (part.text) {
                 full += part.text;
-                onToken(part.text);
+                onToken?.(part.text);
               }
             }
           } catch {
-            // Ignore malformed SSE lines
+            // Ignore non-JSON lines
           }
         }
       }

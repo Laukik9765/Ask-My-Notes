@@ -389,7 +389,7 @@ async function sendMessage(container) {
         }
         assistantContent += token;
         const bubble = typingGroup.querySelector('#streaming-bubble');
-        if (bubble) bubble.textContent = assistantContent.replace(/\[Source:\s*[^\]]+\]/gi, '');
+        if (bubble) bubble.textContent = stripJsonWrapper(assistantContent);
         list.scrollTop = list.scrollHeight;
       },
       onChunks: (chunks) => {
@@ -529,8 +529,41 @@ async function renderMessageBubble(list, msg) {
   list.appendChild(group);
 }
 
+function stripJsonWrapper(text = '') {
+  let cleaned = text.replace(/\[Source:\s*[^\]]+\]/gi, '').trim();
+
+  // Handle JSON code block wrappers (e.g. ```json { "answer": "..." } ```)
+  if (cleaned.startsWith('```json') || cleaned.startsWith('{') || cleaned.startsWith('[')) {
+    const codeBlockMatch = cleaned.match(/^```(?:json)?\s*([\s\S]*?)\s*```\s*([\s\S]*)$/i);
+    if (codeBlockMatch) {
+      const insideCode = codeBlockMatch[1].trim();
+      const afterCode  = codeBlockMatch[2].trim();
+      try {
+        const parsed = JSON.parse(insideCode);
+        const textVal = parsed.answer || parsed.response || parsed.text || parsed.result || afterCode;
+        if (textVal && typeof textVal === 'string') return textVal;
+      } catch {
+        if (afterCode) return afterCode;
+      }
+    }
+
+    try {
+      const parsed = JSON.parse(cleaned);
+      if (typeof parsed === 'object' && parsed !== null) {
+        const textVal = parsed.answer || parsed.response || parsed.text || parsed.result;
+        if (textVal && typeof textVal === 'string') return textVal;
+      }
+    } catch {
+      // Not raw JSON object
+    }
+  }
+
+  // Strip any remaining ```json ... ``` blocks
+  return cleaned.replace(/^```json[\s\S]*?```\s*/gi, '').trim();
+}
+
 async function renderMarkdown(text = '') {
-  const cleaned = text.replace(/\[Source:\s*[^\]]+\]/gi, '').trim();
+  const cleaned = stripJsonWrapper(text);
   const marked = await getMarked().catch(() => null);
   if (!marked) return `<p>${escHtml(cleaned)}</p>`;
   const raw = marked.parse(cleaned);
