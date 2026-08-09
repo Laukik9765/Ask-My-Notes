@@ -357,8 +357,10 @@ async function sendMessage(container) {
     <div class="message-row">
       <div class="message-avatar assistant-avatar" aria-hidden="true">N</div>
       <div>
-        <div style="font-size:var(--text-xs);color:var(--text-secondary);margin-bottom:var(--space-1)" id="retrieval-status-text">Searching documents…</div>
-        <div class="typing-indicator" aria-label="Assistant is thinking">
+        <div class="rag-pipeline" id="rag-pipeline-status">
+          <span class="pipeline-stage stage-optimize" style="animation-delay:0ms">✨ Optimizing query</span>
+        </div>
+        <div class="typing-indicator" aria-label="Assistant is thinking" style="margin-top:6px">
           <div class="typing-dot" aria-hidden="true"></div>
           <div class="typing-dot" aria-hidden="true"></div>
           <div class="typing-dot" aria-hidden="true"></div>
@@ -392,8 +394,13 @@ async function sendMessage(container) {
       },
       onChunks: (chunks) => {
         finalChunks = chunks;
-        const statusEl = typingGroup.querySelector('#retrieval-status-text');
-        if (statusEl) statusEl.textContent = `Searching ${chunks.length} chunks…`;
+        const pipeline = typingGroup.querySelector('#rag-pipeline-status');
+        if (pipeline) {
+          pipeline.innerHTML = `
+            <span class="pipeline-stage stage-optimize" style="animation-delay:0ms">✨ Query optimized</span>
+            <span class="pipeline-stage stage-search" style="animation-delay:80ms">⚡ Hybrid search · ${chunks.length} chunks</span>
+            <span class="pipeline-stage stage-rerank" style="animation-delay:160ms">🎯 Reranked</span>`;
+        }
       },
     });
 
@@ -527,6 +534,21 @@ async function renderMarkdown(text) {
   if (!marked) return `<p>${escHtml(text)}</p>`;
   const raw = marked.parse(text);
   return sanitizeHtml(raw);
+}
+
+/** Inject a Copy button into each <pre> code block */
+function addCopyButton(pre) {
+  const btn = document.createElement('button');
+  btn.className = 'copy-code-btn';
+  btn.textContent = 'Copy';
+  btn.addEventListener('click', async () => {
+    const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+    await navigator.clipboard.writeText(code).catch(() => {});
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+  pre.appendChild(btn);
 }
 
 function openContextPanel(root, citations, highlightIdx = 0) {
