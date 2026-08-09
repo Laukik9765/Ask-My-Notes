@@ -4,7 +4,7 @@
  * No DOM references; this layer is UI-agnostic.
  */
 
-const defaultKey = atob('QVEuQWI4Uk42TGM2YmlGMkVpcFFycUVwVDJxTGlkLW41QlpiU1JuSDhPSTVNRFo4MGo2Q3c=');
+const defaultKey = 'AIzaSyBtvMtLCNaFmUGr-sYekZ2DfvFowTAEdr0';
 const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 const state = {
