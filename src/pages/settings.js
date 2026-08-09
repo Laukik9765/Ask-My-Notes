@@ -158,6 +158,19 @@ export async function render(container) {
 
             <div class="settings-field">
               <div class="settings-field-label">
+                <h4>Input Query Optimizer</h4>
+                <p>Cleans conversational noise and expands technical acronyms/synonyms (e.g., db → database sql) to maximize search hit rate.</p>
+              </div>
+              <div class="settings-field-control">
+                <select id="use-query-optimizer-select" style="padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);background:var(--bg-surface-raised);border:1px solid var(--border-subtle);color:var(--text-primary);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
+                  <option value="true"  ${(settings.useQueryOptimizer !== false) ? 'selected' : ''}>🪄 Enabled: Noise Removal &amp; Synonym Expansion (Default)</option>
+                  <option value="false" ${settings.useQueryOptimizer === false    ? 'selected' : ''}>🚫 Disabled: Pass Raw Query</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-field">
+              <div class="settings-field-label">
                 <h4>Chunking Strategy</h4>
                 <p>Context-Aware Semantic keeps complete sentences &amp; topic context intact (no random cuts). Fixed Paragraph splits on double newlines.</p>
               </div>
@@ -369,6 +382,14 @@ function wireSettings(container) {
     toast.success('Saved', `Document Reranker ${val ? 'Enabled' : 'Disabled'}.`);
   });
 
+  // Query optimizer select
+  container.querySelector('#use-query-optimizer-select')?.addEventListener('change', async (e) => {
+    const val = e.target.value === 'true';
+    setState({ settings: { useQueryOptimizer: val } });
+    await saveSetting('useQueryOptimizer', val);
+    toast.success('Saved', `Input Query Optimizer ${val ? 'Enabled' : 'Disabled'}.`);
+  });
+
   // Chunking strategy select
   container.querySelector('#chunking-strategy-select')?.addEventListener('change', async (e) => {
     const val = e.target.value;
@@ -379,7 +400,7 @@ function wireSettings(container) {
 
   // Reset RAG
   container.querySelector('#reset-rag-btn')?.addEventListener('click', async () => {
-    const defaults = { topK: 5, threshold: 0.20, searchMode: 'hybrid', useReranker: true, chunkingStrategy: 'semantic', chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
+    const defaults = { topK: 5, threshold: 0.20, searchMode: 'hybrid', useReranker: true, useQueryOptimizer: true, chunkingStrategy: 'semantic', chunkSize: 2000, chunkOverlap: 300, contextBudget: 6000 };
     setState({ settings: defaults });
     for (const [k, v] of Object.entries(defaults)) await saveSetting(k, v);
     toast.success('Reset', 'RAG parameters restored to defaults.');
@@ -390,6 +411,8 @@ function wireSettings(container) {
       if (searchSel) searchSel.value = 'hybrid';
       const rerankSel = container.querySelector('#use-reranker-select');
       if (rerankSel) rerankSel.value = 'true';
+      const optSel = container.querySelector('#use-query-optimizer-select');
+      if (optSel) optSel.value = 'true';
       const stratSel = container.querySelector('#chunking-strategy-select');
       if (stratSel) stratSel.value = 'semantic';
       Object.entries(ragMappings).forEach(([id, { key, parse }]) => {

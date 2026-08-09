@@ -8,6 +8,7 @@
 import { chunkText, estimateTokenCount } from './chunker.js';
 import { topKChunks, scoreToConfidence } from './similarity.js';
 import { rerankChunks } from './reranker.js';
+import { optimizeQuery } from './queryOptimizer.js';
 import { formatContext, buildGroundedPrompt, FALLBACK_MESSAGE } from './promptBuilder.js';
 import {
   saveDocument, getDocument, deleteDocument,
@@ -298,10 +299,14 @@ export async function query(question, kbId, callbacks = {}) {
 
   console.log(`[RAG Engine] Querying: "${question}" in KB: "${kbId}"`);
 
-  // 1. Embed query
-  const queryVec = await embedQuery(question);
+  // 1. Input Query Optimization & Expansion
+  const queryObj = optimizeQuery(question, { enabled: settings.useQueryOptimizer !== false });
+  console.log(`[RAG Engine] Optimized Query:`, queryObj);
 
-  // 2. Load chunks (from cache or DB)
+  // 2. Embed query
+  const queryVec = await embedQuery(queryObj.searchText || question);
+
+  // 3. Load chunks (from cache or DB)
   const allChunks = await loadVectorCache(kbId);
   console.log(`[RAG Engine] Total chunks loaded from database for this KB: ${allChunks.length}`);
 
@@ -313,16 +318,16 @@ export async function query(question, kbId, callbacks = {}) {
 
   console.log(`[RAG Engine] Matching using settings threshold: ${settings.threshold}, Top-K: ${settings.topK}`);
 
-  // 3. Stage 1 Retrieval (Hybrid Vector + BM25 Keyword)
+  // 4. Stage 1 Retrieval (Hybrid Vector + BM25 Keyword)
   const candidateResults = topKChunks(queryVec, allChunks, {
     topK:       settings.topK * 3, // Fetch 3x candidates for reranker stage
     threshold:  settings.threshold * 0.5, // Soft threshold for stage 1
     searchMode: settings.searchMode || 'hybrid',
-    queryText:  question,
+    queryText:  queryObj.searchText || question,
   });
 
-  // 3b. Stage 2 Document-Aware Reranker
-  const results = rerankChunks(question, queryVec, candidateResults, {
+  // 5. Stage 2 Document-Aware Reranker
+  const results = rerankChunks(queryObj.searchText || question, queryVec, candidateResults, {
     topK:        settings.topK,
     useReranker: settings.useReranker !== false,
     allKbChunks: allChunks,

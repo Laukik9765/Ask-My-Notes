@@ -24,6 +24,7 @@ const state = {
     threshold: 0.20,
     searchMode: 'hybrid', // 'hybrid' | 'vector' | 'keyword'
     useReranker: true, // Document-aware reranking
+    useQueryOptimizer: true, // Query cleaning & synonym expansion
     chunkingStrategy: 'semantic', // 'semantic' | 'paragraph'
     chunkSize: 2000,
     chunkOverlap: 300,
