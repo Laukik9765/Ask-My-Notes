@@ -1,7 +1,7 @@
 /**
- * api/generate.js — Vercel Serverless Function
+ * api/generate.js — Vercel Serverless Function Proxy
  * Acts as a secure proxy to Google's Gemini API.
- * Keeps the GEMINI_API_KEY hidden on Vercel's servers.
+ * Parses candidate JSON on the server side and streams clean text tokens to the browser.
  */
 
 export default async function handler(req, res) {
@@ -23,13 +23,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=${apiKey}&alt=sse`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey
       },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -37,12 +36,6 @@ export default async function handler(req, res) {
           temperature: 0.1,
           maxOutputTokens: 2048,
         },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ],
       }),
     });
 
@@ -51,20 +44,45 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: errText });
     }
 
-    // Set streaming headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      res.write(value);
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        let trimmed = line.trim();
+        if (!trimmed || trimmed === 'data: [DONE]') continue;
+        if (trimmed.startsWith('data: ')) trimmed = trimmed.slice(6).trim();
+
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(trimmed);
+            const obj = Array.isArray(parsed) ? parsed[0] : parsed;
+            const parts = obj?.candidates?.[0]?.content?.parts || [];
+            for (const part of parts) {
+              if (part.text) {
+                res.write(`data: ${JSON.stringify({ text: part.text })}\n\n`);
+              }
+            }
+          } catch {
+            // Buffer fragment, wait for complete JSON line
+          }
+        }
+      }
     }
 
+    res.write('data: [DONE]\n\n');
     res.end();
   } catch (err) {
     console.error('[API Proxy] Error:', err);

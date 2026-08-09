@@ -114,6 +114,15 @@ export class GeminiProvider {
           try {
             const parsed = JSON.parse(trimmed);
             const obj = Array.isArray(parsed) ? parsed[0] : parsed;
+
+            // Direct text token from Vercel proxy stream
+            if (obj?.text && typeof obj.text === 'string') {
+              full += obj.text;
+              onToken?.(obj.text);
+              continue;
+            }
+
+            // Direct Gemini candidate payload
             const parts = obj?.candidates?.[0]?.content?.parts || [];
             for (const part of parts) {
               if (part.text) {
@@ -121,10 +130,16 @@ export class GeminiProvider {
                 onToken?.(part.text);
               }
             }
+            continue;
           } catch {
-            // Ignore non-JSON lines
+            // Partial JSON buffer chunk, wait for next line
+            continue;
           }
         }
+
+        // Plain text token stream fallback
+        full += trimmed;
+        onToken?.(trimmed);
       }
     }
 

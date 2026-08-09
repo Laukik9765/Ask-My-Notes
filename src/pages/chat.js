@@ -532,6 +532,13 @@ async function renderMessageBubble(list, msg) {
 function stripJsonWrapper(text = '') {
   let cleaned = text.replace(/\[Source:\s*[^\]]+\]/gi, '').trim();
 
+  // Strip raw API JSON syntax leakage if any
+  cleaned = cleaned
+    .replace(/^data:\s*/gi, '')
+    .replace(/^\{\s*"candidates":[\s\S]*?"text":\s*"/gi, '')
+    .replace(/"\s*\}\s*\]\s*\}\s*\]\s*\}?$/gi, '')
+    .trim();
+
   // Handle JSON code block wrappers (e.g. ```json { "answer": "..." } ```)
   if (cleaned.startsWith('```json') || cleaned.startsWith('{') || cleaned.startsWith('[')) {
     const codeBlockMatch = cleaned.match(/^```(?:json)?\s*([\s\S]*?)\s*```\s*([\s\S]*)$/i);
@@ -550,11 +557,11 @@ function stripJsonWrapper(text = '') {
     try {
       const parsed = JSON.parse(cleaned);
       if (typeof parsed === 'object' && parsed !== null) {
-        const textVal = parsed.answer || parsed.response || parsed.text || parsed.result;
+        const textVal = parsed.answer || parsed.response || parsed.text || parsed.result || parsed.candidates?.[0]?.content?.parts?.[0]?.text;
         if (textVal && typeof textVal === 'string') return textVal;
       }
     } catch {
-      // Not raw JSON object
+      // Not complete JSON yet
     }
   }
 
