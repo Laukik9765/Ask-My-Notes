@@ -52,37 +52,56 @@ export class GeminiProvider {
       throw new Error('No Gemini API key set. Please add your key in Settings.');
     }
 
-    const url = `${GEMINI_BASE}/${this.model}:streamGenerateContent?alt=sse`;
+    const fallbackModels = [this.model, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    const uniqueModels   = Array.from(new Set(fallbackModels));
+    let lastErrMessage   = '';
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': this.apiKey
-      },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.1,   // Low temperature for factual, grounded answers
-          maxOutputTokens: 2048,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ],
-      }),
-    });
+    for (const targetModel of uniqueModels) {
+      try {
+        const url = `${GEMINI_BASE}/${targetModel}:streamGenerateContent?alt=sse`;
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(
-        `Gemini error ${res.status}: ${err.error?.message || res.statusText}`
-      );
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.apiKey
+          },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 2048,
+            },
+            safetySettings: [
+              { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
+              { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
+              { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+              { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+            ],
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          lastErrMessage = `Gemini error ${res.status}: ${err.error?.message || res.statusText}`;
+          if (res.status === 429 || res.status === 404) {
+            console.warn(`[GeminiProvider] Model ${targetModel} hit status ${res.status}. Falling back to next model...`);
+            continue;
+          }
+          throw new Error(lastErrMessage);
+        }
+
+        return await this._streamResponse(res, onToken);
+      } catch (err) {
+        lastErrMessage = err.message;
+        if (err.message && (err.message.includes('429') || err.message.includes('Quota') || err.message.includes('404'))) {
+          continue;
+        }
+        throw err;
+      }
     }
 
-    return await this._streamResponse(res, onToken);
+    throw new Error(lastErrMessage || 'All Gemini API models are currently rate limited.');
   }
 
   /**

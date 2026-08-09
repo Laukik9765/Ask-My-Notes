@@ -362,16 +362,41 @@ export async function query(question, kbId, callbacks = {}) {
   // 6. Select provider
   const provider = await getProvider(settings);
 
-  // 7. Generate
+  // 7. Generate with zero-downtime fallback
   let full = '';
-  await provider.generate({
-    prompt,
-    context: contextBlock,
-    onToken: (token) => {
-      full += token;
-      onToken?.(token);
-    },
-  });
+  try {
+    await provider.generate({
+      prompt,
+      context: contextBlock,
+      onToken: (token) => {
+        full += token;
+        onToken?.(token);
+      },
+    });
+  } catch (err) {
+    const isRateLimit = err.message && (
+      err.message.includes('429') ||
+      err.message.includes('Quota') ||
+      err.message.includes('limit') ||
+      err.message.includes('RESOURCE_EXHAUSTED')
+    );
+
+    if (isRateLimit) {
+      console.warn('[RAG Engine] External API rate limited. Auto-falling back to local Retrieval-Only engine.', err.message);
+      const { RetrievalOnlyProvider } = await import('../lib/llm/RetrievalOnlyProvider.js');
+      const fallbackProvider = new RetrievalOnlyProvider();
+      full = '';
+      await fallbackProvider.generate({
+        context: contextBlock,
+        onToken: (token) => {
+          full += token;
+          onToken?.(token);
+        },
+      });
+    } else {
+      throw err;
+    }
+  }
 
   return { answer: full, confidence, chunks: results };
 }
