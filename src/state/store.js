@@ -4,7 +4,7 @@
  * No DOM references; this layer is UI-agnostic.
  */
 
-const defaultKey = 'AIzaSyBtvMtLCNaFmUGr-sYekZ2DfvFowTAEdr0';
+const defaultKey = '';
 const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 const state = {

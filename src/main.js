@@ -32,7 +32,7 @@ async function bootstrap() {
   const kbs    = await getAllKnowledgeBases().catch(() => []);
   const savedKbId = localStorage.getItem('activeKbId');
 
-  const defaultKey = 'AIzaSyBtvMtLCNaFmUGr-sYekZ2DfvFowTAEdr0';
+  const defaultKey = '';
   
   // Only prefill the key if running locally for development. On production, keep it empty/hidden.
   const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
