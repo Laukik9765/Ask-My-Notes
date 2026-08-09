@@ -333,7 +333,7 @@ export async function query(question, kbId, callbacks = {}) {
     allKbChunks: allChunks,
   });
 
-  const topScore = results.length > 0 ? results[0].score : 0;
+  const topScore = results.length > 0 ? (results[0].rerankScore ?? results[0].score ?? 0.20) : 0;
   const confidence = scoreToConfidence(topScore);
 
   console.log(`[RAG Engine] Cosine similarity top score: ${topScore.toFixed(4)}`);

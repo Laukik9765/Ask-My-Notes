@@ -235,7 +235,7 @@ export function topKChunks(queryVector, chunks, opts = {}) {
  * @returns {{ label: string, level: 'high'|'medium'|'low' }}
  */
 export function scoreToConfidence(score) {
-  if (score >= 0.35) return { label: 'High',   level: 'high' };
-  if (score >= 0.15) return { label: 'Medium', level: 'medium' };
+  if (score >= 0.15) return { label: 'High',   level: 'high' };
+  if (score >= 0.05) return { label: 'Medium', level: 'medium' };
   return              { label: 'Low',    level: 'low' };
 }
