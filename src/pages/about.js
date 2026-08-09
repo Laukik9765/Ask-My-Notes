@@ -12,7 +12,7 @@ export function render(container) {
         <div class="about-hero">
           <div class="about-logo-large" aria-hidden="true">N</div>
           <div class="about-hero-text">
-            <h1>NotesMind</h1>
+            <h1>Ask-My-Notes</h1>
             <p style="margin-top:var(--space-2)">A private, local-first RAG chatbot for your notes. Chat with your documents using semantic search — no server, no subscription, no data leaving your device.</p>
             <div class="tech-grid" style="margin-top:var(--space-4)" aria-label="Technology stack">
               ${['HTML5', 'CSS3 (Vanilla)', 'ES6+ JavaScript', 'Transformers.js', 'IndexedDB', 'Ollama', 'pdf.js', 'marked.js', 'highlight.js', 'Service Worker'].map((t) => `
@@ -23,8 +23,8 @@ export function render(container) {
 
         <!-- What it does -->
         <div class="about-section">
-          <h2>What is NotesMind?</h2>
-          <p>NotesMind implements the <strong>Retrieval-Augmented Generation (RAG)</strong> pattern — the same AI architecture used by enterprise knowledge management tools — as a completely static web application with zero recurring cost.</p>
+          <h2>What is Ask-My-Notes?</h2>
+          <p>Ask-My-Notes implements the <strong>Retrieval-Augmented Generation (RAG)</strong> pattern — the same AI architecture used by enterprise knowledge management tools — as a completely static web application with zero recurring cost.</p>
           <p>You upload your notes (PDF, DOCX, TXT, Markdown), the app generates embeddings using a local WASM model, stores them in your browser's IndexedDB, and then answers your questions by retrieving the most relevant text and grounding a local LLM to only that context.</p>
           <p>Every answer includes clickable source citations so you can verify exactly what the model read. A confidence score (based on cosine similarity) shows retrieval quality, and if nothing relevant was found, the app says so rather than hallucinating.</p>
         </div>
@@ -95,7 +95,7 @@ User asks question
 
         <!-- Version / links -->
         <div style="text-align:center;padding:var(--space-8);color:var(--text-tertiary);font-size:var(--text-sm)">
-          NotesMind v1.0 · Built with ❤️ and zero cost<br>
+          Ask-My-Notes v1.0 · Built with ❤️ and zero cost<br>
           <span style="font-size:var(--text-xs);margin-top:4px;display:block">Zero recurring cost · Open source · No server required</span>
         </div>
 

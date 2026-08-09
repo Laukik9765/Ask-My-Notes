@@ -10,9 +10,9 @@ export function render(container) {
 <div class="landing-page">
   <!-- Sticky nav -->
   <nav class="landing-nav" aria-label="Landing navigation">
-    <a href="/" class="landing-nav-logo" aria-label="NotesMind Home">
+    <a href="/" class="landing-nav-logo" aria-label="Ask-My-Notes Home">
       <div class="logo-mark" aria-hidden="true">N</div>
-      <span>NotesMind</span>
+      <span>Ask-My-Notes</span>
     </a>
     <div class="landing-nav-links" role="list">
       <a href="#features" class="landing-nav-link" role="listitem">Features</a>
@@ -44,7 +44,7 @@ export function render(container) {
         <span class="hero-title-accent">Not the internet.</span>
       </h1>
       <p class="hero-subtitle">
-        NotesMind is a private, local-first RAG chatbot that answers questions exclusively from documents you've uploaded — with verifiable source citations for every answer.
+        Ask-My-Notes is a private, local-first RAG chatbot that answers questions exclusively from documents you've uploaded — with verifiable source citations for every answer.
       </p>
       <div class="hero-cta-row">
         <button class="btn btn-primary btn-lg" id="hero-cta-btn">
@@ -57,7 +57,7 @@ export function render(container) {
 
   <!-- Features -->
   <section id="features" class="features-section" aria-labelledby="features-heading">
-    <div class="section-label">Why NotesMind</div>
+    <div class="section-label">Why Ask-My-Notes</div>
     <h2 class="section-title-center" id="features-heading">Built different, by design</h2>
     <p class="section-desc">Every AI assistant makes promises. We make guarantees — encoded in the architecture, not the marketing.</p>
     <div class="features-grid">

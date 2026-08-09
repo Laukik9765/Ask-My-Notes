@@ -1,13 +1,13 @@
-# Ask-My-Notes (NotesMind)
+# Ask-My-Notes
 
 **A private, local-first RAG chatbot for your notes.**  
 Zero cost · No server · Complete privacy · Fully offline after first load.
 
 ---
 
-## What is NotesMind?
+## What is Ask-My-Notes?
 
-NotesMind implements **Retrieval-Augmented Generation (RAG)** as a completely static web application — the same AI architecture used by enterprise knowledge tools, but running entirely in your browser at zero cost.
+Ask-My-Notes implements **Retrieval-Augmented Generation (RAG)** as a completely static web application — the same AI architecture used by enterprise knowledge tools, but running entirely in your browser at zero cost.
 
 You upload your notes → it generates embeddings locally using Transformers.js → stores vectors in your browser's IndexedDB → answers your questions by retrieving the most relevant text and grounding a local LLM to only that context.
 

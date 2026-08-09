@@ -443,7 +443,7 @@ function wireSettings(container) {
       }
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement('a'), { href: url, download: `notesmind-export-${Date.now()}.json` });
+      const a    = Object.assign(document.createElement('a'), { href: url, download: `ask-my-notes-export-${Date.now()}.json` });
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);

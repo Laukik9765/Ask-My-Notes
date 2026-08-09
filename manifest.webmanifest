@@ -1,6 +1,6 @@
 {
-  "name": "NotesMind",
-  "short_name": "NotesMind",
+  "name": "Ask-My-Notes",
+  "short_name": "Ask-My-Notes",
   "description": "Private, local-first RAG chatbot for your notes. Zero cost, zero server.",
   "start_url": "/",
   "display": "standalone",

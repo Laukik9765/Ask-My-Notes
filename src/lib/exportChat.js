@@ -12,14 +12,14 @@
 export function exportChatAsMarkdown(chat, messages) {
   const lines = [
     `# ${chat.title || 'Chat Export'}`,
-    `*Exported from NotesMind on ${new Date().toLocaleString()}*`,
+    `*Exported from Ask-My-Notes on ${new Date().toLocaleString()}*`,
     '',
     '---',
     '',
   ];
 
   for (const msg of messages) {
-    const role = msg.role === 'user' ? '**You**' : '**NotesMind**';
+    const role = msg.role === 'user' ? '**You**' : '**Ask-My-Notes**';
     lines.push(`### ${role}`);
     lines.push(msg.content);
     if (msg.citations?.length) {
@@ -32,7 +32,7 @@ export function exportChatAsMarkdown(chat, messages) {
   }
 
   const md = lines.join('\n');
-  downloadBlob(md, `notesmind-${sanitizeFilename(chat.title)}.md`, 'text/markdown');
+  downloadBlob(md, `ask-my-notes-${sanitizeFilename(chat.title)}.md`, 'text/markdown');
 }
 
 /**
@@ -48,7 +48,7 @@ export function exportChatAsJson(chat, messages) {
     messages,
   };
   const json = JSON.stringify(data, null, 2);
-  downloadBlob(json, `notesmind-${sanitizeFilename(chat.title)}.json`, 'application/json');
+  downloadBlob(json, `ask-my-notes-${sanitizeFilename(chat.title)}.json`, 'application/json');
 }
 
 /**
